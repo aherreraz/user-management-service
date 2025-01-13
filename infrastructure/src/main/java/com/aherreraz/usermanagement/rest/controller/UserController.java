@@ -14,7 +14,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class UserController {
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto request) {
-        return ResponseEntity.ok(new SignUpResponseDto());
+    public ResponseEntity<SignUpRequestDto> signUp(@Valid @RequestBody SignUpRequestDto request) {
+        return ResponseEntity.ok(request);
     }
 }
