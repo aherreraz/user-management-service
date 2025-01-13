@@ -8,8 +8,6 @@ import com.aherreraz.usermanagement.port.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryAdapter implements UserRepositoryPort {
