@@ -1,5 +1,6 @@
 plugins {
-    application
+    java
+    id("io.freefair.lombok") version "8.11"
 }
 
 java {
@@ -9,10 +10,8 @@ java {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     implementation(project(":domain"))
-}
-
-tasks.named<Test>("test") {
-    useJUnitPlatform()
+    implementation("org.hibernate.validator:hibernate-validator:8.0.2.Final")
+    implementation("org.mapstruct:mapstruct:1.6.3")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 }
