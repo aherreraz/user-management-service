@@ -11,6 +11,7 @@ java {
 
 dependencies {
     implementation(project(":domain"))
+    implementation("org.springframework:spring-context:5.3.20")
     implementation("org.hibernate.validator:hibernate-validator:6.2.3.Final")
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")

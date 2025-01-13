@@ -1,12 +1,16 @@
 package com.aherreraz.usermanagement.model;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class User {
     private UUID id;
     private String name;
@@ -16,4 +20,11 @@ public class User {
     private LocalDateTime created;
     private LocalDateTime lastLogin;
     private Boolean isActive;
+
+    public User() {
+        this.id = UUID.randomUUID();
+        this.created = LocalDateTime.now();
+        this.lastLogin = null;
+        this.isActive = true;
+    }
 }
