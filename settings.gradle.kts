@@ -8,4 +8,6 @@
  */
 
 rootProject.name = "user-management-service"
-include("app")
+include("domain")
+include("application")
+include("infrastructure")
