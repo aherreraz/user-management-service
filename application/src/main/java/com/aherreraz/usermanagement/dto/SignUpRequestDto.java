@@ -1,11 +1,17 @@
 package com.aherreraz.usermanagement.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SignUpRequestDto {
     private String name;
     @Pattern(
