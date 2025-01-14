@@ -15,10 +15,15 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     private final UserDboMapper userDboMapper;
 
     @Override
-    public User create(User user) {
+    public User save(User user) {
         var userToSave = userDboMapper.toDbo(user);
         var userSaved = jpaUserRepository.save(userToSave);
         return userDboMapper.toDomain(userSaved);
+    }
+
+    @Override
+    public Boolean exists(String email) {
+        return jpaUserRepository.existsByEmail(email);
     }
 
     @Override
