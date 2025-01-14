@@ -1,6 +1,7 @@
 package com.aherreraz.usermanagement.model;
 
-import lombok.AllArgsConstructor;
+import com.aherreraz.usermanagement.port.PasswordEncoderPort;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,12 +11,13 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class User {
     private UUID id;
     private String name;
     private String email;
     private String password;
+    @Getter(AccessLevel.NONE)
+    private String cleanPassword;
     private List<Phone> phones;
     private LocalDateTime created;
     private LocalDateTime lastLogin;
@@ -26,5 +28,9 @@ public class User {
         this.created = LocalDateTime.now();
         this.lastLogin = null;
         this.isActive = true;
+    }
+
+    public void encodePassword(PasswordEncoderPort passwordEncoder) {
+        this.setPassword(passwordEncoder.encode(this.cleanPassword));
     }
 }
