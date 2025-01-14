@@ -16,6 +16,7 @@ public class AuthService {
     private final SignUpMapper signUpMapper;
     private final UserRepositoryPort userRepository;
     private final PasswordEncoderPort passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public SignUpResponseDto signUp(SignUpRequestDto request) {
         if (userRepository.exists(request.getEmail())) {
@@ -24,6 +25,6 @@ public class AuthService {
 
         User user = signUpMapper.toDomain(request, passwordEncoder);
         User savedUser = userRepository.save(user);
-        return signUpMapper.toDto(savedUser);
+        return signUpMapper.toDto(savedUser, jwtUtil);
     }
 }

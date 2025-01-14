@@ -4,6 +4,8 @@ import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
 import com.aherreraz.usermanagement.model.User;
 import com.aherreraz.usermanagement.port.PasswordEncoderPort;
+import com.aherreraz.usermanagement.service.JwtUtil;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,10 +26,17 @@ public interface SignUpMapper {
     @Mapping(target = "password", qualifiedByName = "encodePassword")
     User toDomain(SignUpRequestDto dto, @Context PasswordEncoderPort passwordEncoder);
 
-    SignUpResponseDto toDto(User user);
+    @Mapping(target = "token", source = "email", qualifiedByName = "generateToken")
+    @BeanMapping(ignoreUnmappedSourceProperties = {"name", "password", "phones"})
+    SignUpResponseDto toDto(User user, @Context JwtUtil jwtUtil);
 
     @Named("encodePassword")
     static String encodePassword(String rawPassword, @Context PasswordEncoderPort passwordEncoder) {
         return passwordEncoder.encode(rawPassword);
+    }
+
+    @Named("generateToken")
+    static String generateToken(String email, @Context JwtUtil jwtUtil) {
+        return jwtUtil.generateToken(email);
     }
 }
