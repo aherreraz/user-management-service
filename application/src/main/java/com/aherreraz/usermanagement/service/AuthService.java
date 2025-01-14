@@ -22,10 +22,7 @@ public class AuthService {
             throw new DuplicateUserException("User already exists");
         }
 
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-
-        User user = signUpMapper.toDomain(request);
-        user.setPassword(encodedPassword);
+        User user = signUpMapper.toDomain(request, passwordEncoder);
         User savedUser = userRepository.save(user);
         return signUpMapper.toDto(savedUser);
     }
