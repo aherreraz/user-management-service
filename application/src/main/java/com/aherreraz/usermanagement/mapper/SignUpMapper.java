@@ -4,7 +4,7 @@ import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
 import com.aherreraz.usermanagement.model.User;
 import com.aherreraz.usermanagement.port.PasswordEncoderPort;
-import com.aherreraz.usermanagement.service.JwtUtil;
+import com.aherreraz.usermanagement.util.JwtUtil;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;

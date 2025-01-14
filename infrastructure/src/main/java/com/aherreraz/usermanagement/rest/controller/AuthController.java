@@ -1,5 +1,7 @@
 package com.aherreraz.usermanagement.rest.controller;
 
+import com.aherreraz.usermanagement.dto.LoginRequestDto;
+import com.aherreraz.usermanagement.dto.LoginResponseDto;
 import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
 import com.aherreraz.usermanagement.service.AuthService;
@@ -17,7 +19,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto newUser) {
-        return ResponseEntity.ok(authService.signUp(newUser));
+    public ResponseEntity<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto signUpRequest) {
+        return ResponseEntity.ok(authService.signUp(signUpRequest));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 }

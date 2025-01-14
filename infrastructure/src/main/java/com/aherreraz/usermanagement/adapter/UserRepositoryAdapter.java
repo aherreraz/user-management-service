@@ -2,11 +2,12 @@ package com.aherreraz.usermanagement.adapter;
 
 import com.aherreraz.usermanagement.adapter.mapper.UserDboMapper;
 import com.aherreraz.usermanagement.adapter.repository.JpaUserRepository;
-import com.aherreraz.usermanagement.exception.UserNotFoundException;
 import com.aherreraz.usermanagement.model.User;
 import com.aherreraz.usermanagement.port.UserRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -27,8 +28,8 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public User findByCredentials(String email, String password) {
-        var userFound = jpaUserRepository.findByEmailAndPassword(email, password);
-        return userFound.map(userDboMapper::toDomain).orElseThrow(() -> new UserNotFoundException("Invalid credentials"));
+    public Optional<User> findByEmail(String email) {
+        var userFound = jpaUserRepository.findByEmail(email);
+        return userFound.map(userDboMapper::toDomain);
     }
 }
