@@ -6,6 +6,7 @@ import com.aherreraz.usermanagement.dto.PhoneDto;
 import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
 import com.aherreraz.usermanagement.model.ErrorMessage;
+import com.aherreraz.usermanagement.util.JwtUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class AuthControllerTest {
     private final ObjectMapper objectMapper;
+    private final JwtUtil jwtUtil;
     @LocalServerPort
     private Integer serverPort;
 
@@ -235,7 +237,7 @@ class AuthControllerTest {
                     .contentType(ContentType.JSON)
                     .body(objectMapper.writeValueAsString(loginRequestDto))
                     .when()
-                    .post("login")
+                    .post("/login")
                     .then()
                     .statusCode(200);
 
@@ -253,6 +255,60 @@ class AuthControllerTest {
                                 .isNotEmpty()
                                 .hasSize(1)
                                 .containsAll(signUpRequest.getPhones());
+                    });
+        }
+
+        @Test
+        @DisplayName("Should return error when using an invalid token")
+        void error_invalidToken() throws JsonProcessingException {
+            LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                    .token("invalid-token")
+                    .build();
+
+            ValidatableResponse validatableResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(loginRequestDto))
+                    .when()
+                    .post("/login")
+                    .then()
+                    .statusCode(401);
+
+            List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
+            });
+            AssertionsForInterfaceTypes.assertThat(errors)
+                    .isNotNull()
+                    .hasSize(1)
+                    .allSatisfy(error -> {
+                        assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
+                        assertThat(error.getCode()).isEqualTo(401);
+                        assertThat(error.getDetail()).isEqualTo("Invalid or expired token");
+                    });
+        }
+
+        @Test
+        @DisplayName("Should return error if user doesn't exist")
+        void error_userNotFound() throws JsonProcessingException {
+            LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                    .token(jwtUtil.generateToken("random-user"))
+                    .build();
+
+            ValidatableResponse validatableResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(loginRequestDto))
+                    .when()
+                    .post("/login")
+                    .then()
+                    .statusCode(404);
+
+            List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
+            });
+            AssertionsForInterfaceTypes.assertThat(errors)
+                    .isNotNull()
+                    .hasSize(1)
+                    .allSatisfy(error -> {
+                        assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
+                        assertThat(error.getCode()).isEqualTo(404);
+                        assertThat(error.getDetail()).isEqualTo("User not found");
                     });
         }
     }
