@@ -3,12 +3,15 @@ package com.aherreraz.usermanagement.rest.controller;
 import com.aherreraz.usermanagement.dto.PhoneDto;
 import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
+import com.aherreraz.usermanagement.model.ErrorMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -82,6 +85,7 @@ class AuthControllerTest {
                             .number(12345678L)
                             .build()))
                     .build();
+
             ValidatableResponse validatableResponse = given()
                     .contentType(ContentType.JSON)
                     .body(objectMapper.writeValueAsString(requestDto))
@@ -97,6 +101,98 @@ class AuthControllerTest {
                         assertThat(actual.getLastLogin()).isNull();
                         assertThat(actual.getToken()).isNotBlank();
                         assertThat(actual.getIsActive()).isTrue();
+                    });
+        }
+
+        @Test
+        @DisplayName("Should return an error if email is invalid")
+        void error_emailValidation() throws JsonProcessingException {
+            SignUpRequestDto requestDto = SignUpRequestDto.builder()
+                    .email("andres@example,com")
+                    .password("A12hello")
+                    .build();
+
+            ValidatableResponse validatableResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(requestDto))
+                    .when()
+                    .post("/sign-up")
+                    .then()
+                    .statusCode(422);
+
+            List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
+            });
+            AssertionsForInterfaceTypes.assertThat(errors)
+                    .isNotNull()
+                    .hasSize(1)
+                    .allSatisfy(error -> {
+                        assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
+                        assertThat(error.getCode()).isEqualTo(422);
+                        assertThat(error.getDetail()).isEqualTo("Invalid email format");
+                    });
+        }
+
+        @Test
+        @DisplayName("Should return an error if password is invalid")
+        void error_passwordValidation() throws JsonProcessingException {
+            SignUpRequestDto requestDto = SignUpRequestDto.builder()
+                    .email("andres@example.com")
+                    .password("A12helloA")
+                    .build();
+
+            ValidatableResponse validatableResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(requestDto))
+                    .when()
+                    .post("/sign-up")
+                    .then()
+                    .statusCode(422);
+
+            List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
+            });
+            AssertionsForInterfaceTypes.assertThat(errors)
+                    .isNotNull()
+                    .hasSize(1)
+                    .allSatisfy(error -> {
+                        assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
+                        assertThat(error.getCode()).isEqualTo(422);
+                        assertThat(error.getDetail()).isEqualTo("Password must have 1 uppercase letter, 2 digits, and be 8-12 characters long");
+                    });
+        }
+
+        @Test
+        @DisplayName("Should return an error if an user already exists")
+        void error_duplicateUser() throws JsonProcessingException {
+            SignUpRequestDto requestDto = SignUpRequestDto.builder()
+                    .email("andres@example.com")
+                    .password("A12hello")
+                    .build();
+
+            given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(requestDto))
+                    .when()
+                    .post("/sign-up")
+                    .then()
+                    .statusCode(200);
+
+            ValidatableResponse validatableResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(requestDto))
+                    .when()
+                    .post("/sign-up")
+                    .then()
+                    .statusCode(409);
+
+            List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
+            });
+            AssertionsForInterfaceTypes.assertThat(errors)
+                    .isNotNull()
+                    .hasSize(1)
+                    .allSatisfy(error -> {
+                        assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
+                        assertThat(error.getCode()).isEqualTo(409);
+                        assertThat(error.getDetail()).isEqualTo("User already exists");
                     });
         }
     }
