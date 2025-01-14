@@ -1,5 +1,7 @@
 package com.aherreraz.usermanagement.rest.controller;
 
+import com.aherreraz.usermanagement.dto.LoginRequestDto;
+import com.aherreraz.usermanagement.dto.LoginResponseDto;
 import com.aherreraz.usermanagement.dto.PhoneDto;
 import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
@@ -193,6 +195,64 @@ class AuthControllerTest {
                         assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
                         assertThat(error.getCode()).isEqualTo(409);
                         assertThat(error.getDetail()).isEqualTo("User already exists");
+                    });
+        }
+    }
+
+
+    @Nested
+    @DisplayName("Login")
+    class LoginTest {
+        @Test
+        @DisplayName("Should login an user and return user information")
+        void success() throws JsonProcessingException {
+            SignUpRequestDto signUpRequest = SignUpRequestDto.builder()
+                    .email("andres@example.com")
+                    .password("A12hello")
+                    .name("Andres")
+                    .phones(List.of(PhoneDto.builder()
+                            .countryCode("51")
+                            .cityCode(1)
+                            .number(12345678L)
+                            .build()))
+                    .build();
+
+            ValidatableResponse signUpResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(signUpRequest))
+                    .when()
+                    .post("/sign-up")
+                    .then()
+                    .statusCode(200);
+
+            String newUserToken = objectMapper.convertValue(signUpResponse.extract().jsonPath().get("token"), String.class);
+
+            LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                    .token(newUserToken)
+                    .build();
+
+            ValidatableResponse loginResponse = given()
+                    .contentType(ContentType.JSON)
+                    .body(objectMapper.writeValueAsString(loginRequestDto))
+                    .when()
+                    .post("login")
+                    .then()
+                    .statusCode(200);
+
+            assertThat(objectMapper.convertValue(loginResponse.extract().jsonPath().get(""), LoginResponseDto.class))
+                    .satisfies(actual -> {
+                        assertThat(actual.getId()).isInstanceOf(UUID.class);
+                        assertThat(actual.getCreated()).isInstanceOf(LocalDateTime.class);
+                        assertThat(actual.getLastLogin()).isInstanceOf(LocalDateTime.class);
+                        assertThat(actual.getToken()).isNotBlank().isNotEqualTo(newUserToken);
+                        assertThat(actual.getIsActive()).isTrue();
+                        assertThat(actual.getName()).isEqualTo(signUpRequest.getName());
+                        assertThat(actual.getEmail()).isEqualTo(signUpRequest.getEmail());
+                        assertThat(actual.getPassword()).isNotBlank().isNotEqualTo(signUpRequest.getPassword());
+                        AssertionsForInterfaceTypes.assertThat(actual.getPhones())
+                                .isNotEmpty()
+                                .hasSize(1)
+                                .containsAll(signUpRequest.getPhones());
                     });
         }
     }
