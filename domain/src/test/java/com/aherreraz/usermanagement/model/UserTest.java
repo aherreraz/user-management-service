@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@DisplayName("User tests")
 class UserTest {
     @Test
     @DisplayName("Should create a User with default values")
@@ -24,7 +25,7 @@ class UserTest {
                 () -> assertInstanceOf(UUID.class, newUser.getId()),
                 () -> assertInstanceOf(LocalDateTime.class, newUser.getCreated()),
                 () -> assertNull(newUser.getLastLogin()),
-                () -> assertEquals(newUser.getIsActive(), true),
+                () -> assertEquals(true, newUser.getIsActive()),
                 () -> assertNull(newUser.getEmail()),
                 () -> assertNull(newUser.getName()),
                 () -> assertNull(newUser.getPassword()),
