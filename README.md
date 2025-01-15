@@ -112,7 +112,7 @@ Basic user authentication service. Supports signing up new users and retrieving 
     "error": [
       {
         "timestamp": "datetime",
-        "code": int,
+        "code": integer,
         "detail": "string"
       }
     ]
@@ -167,7 +167,7 @@ Basic user authentication service. Supports signing up new users and retrieving 
     "error": [
       {
         "timestamp": "datetime",
-        "code": int,
+        "code": integer,
         "detail": "string"
       }
     ]
