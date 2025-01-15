@@ -14,6 +14,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpStatus;
 import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -75,7 +76,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(200);
+                    .statusCode(HttpStatus.SC_CREATED);
 
             assertThat(objectMapper.convertValue(validatableResponse.extract().jsonPath().get(""), SignUpResponseDto.class))
                     .satisfies(actual -> {
@@ -107,7 +108,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(200);
+                    .statusCode(HttpStatus.SC_CREATED);
 
             assertThat(objectMapper.convertValue(validatableResponse.extract().jsonPath().get(""), SignUpResponseDto.class))
                     .satisfies(actual -> {
@@ -133,7 +134,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(422);
+                    .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
             List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
             });
@@ -142,7 +143,7 @@ class AuthControllerTest {
                     .hasSize(1)
                     .allSatisfy(error -> {
                         assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
-                        assertThat(error.getCode()).isEqualTo(422);
+                        assertThat(error.getCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
                         assertThat(error.getDetail()).isEqualTo("Invalid email format");
                     });
         }
@@ -161,7 +162,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(422);
+                    .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
 
             List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
             });
@@ -170,7 +171,7 @@ class AuthControllerTest {
                     .hasSize(1)
                     .allSatisfy(error -> {
                         assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
-                        assertThat(error.getCode()).isEqualTo(422);
+                        assertThat(error.getCode()).isEqualTo(HttpStatus.SC_UNPROCESSABLE_ENTITY);
                         assertThat(error.getDetail()).isEqualTo("Password must have 1 uppercase letter, 2 digits, and be 8-12 characters long");
                     });
         }
@@ -189,7 +190,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(200);
+                    .statusCode(HttpStatus.SC_CREATED);
 
             ValidatableResponse validatableResponse = given()
                     .contentType(ContentType.JSON)
@@ -197,7 +198,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(409);
+                    .statusCode(HttpStatus.SC_CONFLICT);
 
             List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
             });
@@ -206,7 +207,7 @@ class AuthControllerTest {
                     .hasSize(1)
                     .allSatisfy(error -> {
                         assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
-                        assertThat(error.getCode()).isEqualTo(409);
+                        assertThat(error.getCode()).isEqualTo(HttpStatus.SC_CONFLICT);
                         assertThat(error.getDetail()).isEqualTo("User already exists");
                     });
         }
@@ -236,7 +237,7 @@ class AuthControllerTest {
                     .when()
                     .post("/sign-up")
                     .then()
-                    .statusCode(200);
+                    .statusCode(HttpStatus.SC_CREATED);
 
             String newUserToken = objectMapper.convertValue(signUpResponse.extract().jsonPath().get("token"), String.class);
 
@@ -250,7 +251,7 @@ class AuthControllerTest {
                     .when()
                     .post("/login")
                     .then()
-                    .statusCode(200);
+                    .statusCode(HttpStatus.SC_OK);
 
             assertThat(objectMapper.convertValue(loginResponse.extract().jsonPath().get(""), LoginResponseDto.class))
                     .satisfies(actual -> {
@@ -282,7 +283,7 @@ class AuthControllerTest {
                     .when()
                     .post("/login")
                     .then()
-                    .statusCode(401);
+                    .statusCode(HttpStatus.SC_UNAUTHORIZED);
 
             List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
             });
@@ -291,7 +292,7 @@ class AuthControllerTest {
                     .hasSize(1)
                     .allSatisfy(error -> {
                         assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
-                        assertThat(error.getCode()).isEqualTo(401);
+                        assertThat(error.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
                         assertThat(error.getDetail()).isEqualTo("Invalid or expired token");
                     });
         }
@@ -309,7 +310,7 @@ class AuthControllerTest {
                     .when()
                     .post("/login")
                     .then()
-                    .statusCode(404);
+                    .statusCode(HttpStatus.SC_NOT_FOUND);
 
             List<ErrorMessage> errors = objectMapper.convertValue(validatableResponse.extract().jsonPath().get("error"), new TypeReference<>() {
             });
@@ -318,7 +319,7 @@ class AuthControllerTest {
                     .hasSize(1)
                     .allSatisfy(error -> {
                         assertThat(error.getTimestamp()).isInstanceOf(LocalDateTime.class);
-                        assertThat(error.getCode()).isEqualTo(404);
+                        assertThat(error.getCode()).isEqualTo(HttpStatus.SC_NOT_FOUND);
                         assertThat(error.getDetail()).isEqualTo("User not found");
                     });
         }

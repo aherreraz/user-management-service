@@ -6,6 +6,7 @@ import com.aherreraz.usermanagement.dto.SignUpRequestDto;
 import com.aherreraz.usermanagement.dto.SignUpResponseDto;
 import com.aherreraz.usermanagement.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto signUpRequest) {
-        return ResponseEntity.ok(authService.signUp(signUpRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.signUp(signUpRequest));
     }
 
     @PostMapping("/login")
