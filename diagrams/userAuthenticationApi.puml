@@ -1,0 +1,29 @@
+@startuml
+
+package "Domain" {
+    interface UserRepositoryPort
+    interface PasswordEncoderPort
+}
+
+package "Application" {
+    [AuthService]
+    [JwtUtil]
+}
+
+package "Infrastructure" {
+    [AuthController]
+    [UserRepositoryAdapter]
+    [JpaUserRepository]
+    [PasswordEncoderAdapter]
+}
+
+[AuthService] -left-> [JwtUtil]
+[AuthService] --> [PasswordEncoderPort]
+[AuthService] --> [UserRepositoryPort]
+
+[AuthService] --up0)- [AuthController]
+[UserRepositoryAdapter] --|> [UserRepositoryPort]
+[PasswordEncoderAdapter] --|> [PasswordEncoderPort]
+[JpaUserRepository] -left0)- [UserRepositoryAdapter]
+
+@enduml
