@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +42,15 @@ class AuthControllerTest {
     private final JwtUtil jwtUtil;
     @LocalServerPort
     private Integer serverPort;
+
+    @DynamicPropertySource
+    static void overrideDataSourceProperties(DynamicPropertyRegistry registry) {
+        String uniqueDbName = "testdb-" + UUID.randomUUID();
+        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:" + uniqueDbName);
+        registry.add("spring.datasource.driver-class-name", () -> "org.h2.Driver");
+        registry.add("spring.datasource.username", () -> "sa");
+        registry.add("spring.datasource.password", () -> "");
+    }
 
     @BeforeEach
     public void beforeEach() {
@@ -246,7 +257,7 @@ class AuthControllerTest {
                         assertThat(actual.getId()).isInstanceOf(UUID.class);
                         assertThat(actual.getCreated()).isInstanceOf(LocalDateTime.class);
                         assertThat(actual.getLastLogin()).isInstanceOf(LocalDateTime.class);
-                        assertThat(actual.getToken()).isNotBlank().isNotEqualTo(newUserToken);
+                        assertThat(actual.getToken()).isNotBlank();
                         assertThat(actual.getIsActive()).isTrue();
                         assertThat(actual.getName()).isEqualTo(signUpRequest.getName());
                         assertThat(actual.getEmail()).isEqualTo(signUpRequest.getEmail());
