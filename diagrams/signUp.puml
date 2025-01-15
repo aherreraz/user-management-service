@@ -1,0 +1,54 @@
+@startuml
+
+actor User
+participant AuthController
+participant AuthControllerAdvice
+participant AuthService
+participant SignUpMapper
+participant UserDomainObject
+participant PasswordEncoder
+participant SignUpResponseDto
+participant UserRepository
+participant JwtUtil
+
+User -> AuthController: **signUp** (signUpRequestDto)
+AuthController -> AuthService: **signUp** (signUpRequestDto)
+AuthService -> UserRepository: **exists** (email)
+
+alt User exists
+    UserRepository --> AuthService: user already exists
+    AuthService --> AuthControllerAdvice: user already exists
+    AuthControllerAdvice --> User: return error
+else User doesn't exist
+    UserRepository --> AuthService: user doesn't exist
+    AuthService -> SignUpMapper: **toDomain** (signUpRequestDto)
+    SignUpMapper -> UserDomainObject: **new**
+    UserDomainObject -> UserDomainObject: **setId** (randomUUID)
+    UserDomainObject -> UserDomainObject: **setCreated** (now)
+    UserDomainObject -> UserDomainObject: **setLastLogin** (null)
+    UserDomainObject -> UserDomainObject: **setIsActive** (true)
+    SignUpMapper -> UserDomainObject: **setName** (name)
+    SignUpMapper -> UserDomainObject: **setEmail** (email)
+    SignUpMapper -> UserDomainObject: **setPhones** (phones)
+    SignUpMapper -> UserDomainObject: **setCleanPassword** (password)
+    UserDomainObject -> PasswordEncoder: **encodePassword** (cleanPassword)
+    PasswordEncoder --> UserDomainObject: encodedPassword
+    UserDomainObject -> UserDomainObject: **setPassword** (encodedPassword)
+    SignUpMapper --> AuthService: userDomainObject
+    AuthService -> UserRepository: **save** (userDomainObject)
+    UserRepository --> AuthService: savedUser
+    AuthService -> SignUpMapper: **toDto** (savedUser)
+    SignUpMapper -> JwtUtil: **generateToken** (email)
+    JwtUtil --> SignUpMapper: token
+    SignUpMapper -> SignUpResponseDto: **new**
+    SignUpMapper -> SignUpResponseDto: **setToken** (token)
+    SignUpMapper -> SignUpResponseDto: **setId** (id)
+    SignUpMapper -> SignUpResponseDto: **setCreated** (created)
+    SignUpMapper -> SignUpResponseDto: **setLastLogin** (lastLogin)
+    SignUpMapper -> SignUpResponseDto: **setIsActive** (isActive)
+    SignUpMapper --> AuthService: signUpResponseDto
+    AuthService --> AuthController: signUpResponseDto
+    AuthController --> User: signUpResponseDto
+end alt
+
+@enduml
